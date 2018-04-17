@@ -70,7 +70,88 @@ RUN yum install -y -q pcre \
     yum -q clean all && \
     mkdir -p /usr/local/src/apache
 
+WORKDIR /usr/local/src/apache
+COPY httpd-${HTTPD_VERSION}.tar.gz ./
+COPY apr-util-${APR_UTIL_VERSION}.tar.gz ./
+COPY apr-${APR_VERSION}.tar.gz ./
 
+RUN tar xzf httpd-${HTTPD_VERSION}.tar.gz && \
+    rm -fr httpd-${HTTPD_VERSION}.tar.gz && \
+    tar xzf apr-${APR_VERSION}.tar.gz && \
+    rm -fr apr-${APR_VERSION}.tar.gz && \
+    tar xzf apr-util-${APR_UTIL_VERSION}.tar.gz && \
+    rm -fr apr-util-${APR_UTIL_VERSION}.tar.gz && \
+    mkdir -p /usr/local/httpd
 
+WORKDIR /usr/local/src/apache/apr-${APR_VERSION}
+RUN ./configure \
+    --silent \
+    --prefix=/usr/local/apr-${APR_VERSION} && \
+    make --silent && \
+    make install --silent && \
+    rm -fr /usr/local/src/apache/apr-${APR_VERSION}
 
+WORKDIR /usr/local/src/apache/apr-util-${APR_UTIL_VERSION}
+RUN ./configure \
+    --silent \
+    --prefix=/usr/local/apr-util-${APR_UTIL_VERSION} \
+    --with-apr=/usr/local/apr-${APR_VERSION} && \
+    make --silent && \
+    make install --silent && \
+    rm -fr /usr/local/src/apache/apr-util-${APR_UTIL_VERSION}
 
+WORKDIR /usr/local/src/apache/httpd-${HTTPD_VERSION}/
+RUN ./configure \
+    --silent \
+    --prefix=/usr/local/httpd \
+    --with-apr=/usr/local/apr-${APR_VERSION} \
+    --with-apr-util=/usr/local/apr-util-${APR_UTIL_VERSION} \
+    --enable-so \
+    --enable-proxy \
+    --enable-rewrite \
+    --with-mpm=prefork \
+    --enable-ssl && \
+    make --silent && \
+    make install --silent && \
+    echo "application/x-httpd-php php html" >> /usr/local/httpd/conf/mime.types && \
+    chown -R apache:dev /usr/local/apr-${APR_VERSION} && \
+    chown -R apache:dev /usr/local/apr-util-${APR_UTIL_VERSION} && \
+    chown -R apache:dev /usr/local/httpd && \
+    rm -fr /usr/local/src/apache/httpd-${HTTPD_VERSION}
+
+# PHP
+WORKDIR  /usr/local/src/
+COPY php-${PHP_VERSION}.tar.gz ./
+RUN tar xzf php-${PHP_VERSION}.tar.gz && \
+    rm -fr php-${PHP_VERSION}.tar.gz
+
+# PHPインストール
+WORKDIR /usr/local/src/php-${PHP_VERSION}
+RUN ./configure \
+    --silent \
+    --with-apxs2=/usr/local/httpd/bin/apxs \
+    --with-pgsql=/usr/local/pgsql \
+    --with-mysqli=mysqlnd \
+    --enable-sockets \
+    --enable-mbstring \
+    --enable-mbregex \
+    --enable-cli \
+    --with-zlib \
+    --with-gd \
+    --with-jpeg-dir=/usr/local/src/php-${PHP_VERSION}/ext/gd/libgd \
+    --with-png-dir=/usr/local/src/php-${PHP_VERSION}/ext/gd/libgd \
+    --with-libxml-dir=/usr/local/libxml2 \
+    --with-openssl \
+    --with-freetype-dir=/usr/local/freetype-2 \
+    --with-xpm-dir \
+    --enable-gd-native-ttf \
+    --enable-gd-jis-conv \
+    --with-curl \
+    --with-libdir=lib64 \
+    --enable-exif && \
+    make --silent && \
+    make install --silent && \
+    pecl install --nocompress mailparse && \
+    pecl install redis && \
+    rm -fr /usr/local/src/php-${PHP_VERSION}
+    
