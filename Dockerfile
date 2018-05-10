@@ -155,3 +155,25 @@ RUN ./configure \
     pecl install redis && \
     rm -fr /usr/local/src/php-${PHP_VERSION}
     
+# apacheのコマンドすぐ使いたいかもしれないからdir移動
+WORKDIR /usr/local/httpd/bin
+
+
+##############################################################################
+# conf類は変わる可能性が高いから最後に書くこと！！
+##############################################################################
+# httpd.confの設置
+ADD httpd.conf /usr/local/httpd/conf/httpd.conf
+# httpd-vhostsの設置
+ADD httpd-vhosts.conf /usr/local/httpd/conf/extra/httpd-vhosts.conf
+
+# php設定ファイル設置
+ADD php.ini /usr/local/lib/php.ini
+# 実行時にコマンド実行
+ADD run /usr/local/bin/run
+
+RUN chmod +x /usr/local/bin/run
+
+EXPOSE 80 443
+
+ENTRYPOINT ["/usr/local/bin/run"]
