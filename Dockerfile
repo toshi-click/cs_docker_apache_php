@@ -74,8 +74,10 @@ WORKDIR /usr/local/src/apache
 COPY httpd-${HTTPD_VERSION}.tar.gz ./
 COPY apr-util-${APR_UTIL_VERSION}.tar.gz ./
 COPY apr-${APR_VERSION}.tar.gz ./
-
-RUN tar xzf httpd-${HTTPD_VERSION}.tar.gz && \
+RUN wget -nv -q http://ftp.tsukuba.wide.ad.jp/software/apache//httpd/httpd-${HTTPD_VERSION}.tar.gz && \
+    wget -nv -q http://ftp.riken.jp/net/apache//apr/apr-${APR_VERSION}.tar.gz && \
+    wget -nv -q http://ftp.riken.jp/net/apache//apr/apr-util-${APR_UTIL_VERSION}.tar.gz && \
+    tar xzf httpd-${HTTPD_VERSION}.tar.gz && \
     rm -fr httpd-${HTTPD_VERSION}.tar.gz && \
     tar xzf apr-${APR_VERSION}.tar.gz && \
     rm -fr apr-${APR_VERSION}.tar.gz && \
@@ -121,8 +123,8 @@ RUN ./configure \
 
 # PHP
 WORKDIR  /usr/local/src/
-COPY php-${PHP_VERSION}.tar.gz ./
-RUN tar xzf php-${PHP_VERSION}.tar.gz && \
+RUN wget -nv -q -O php-${PHP_VERSION}.tar.gz http://jp2.php.net/get/php-${PHP_VERSION}.tar.gz/from/this/mirror && \
+    tar xzf php-${PHP_VERSION}.tar.gz && \
     rm -fr php-${PHP_VERSION}.tar.gz
 
 # PHPインストール
