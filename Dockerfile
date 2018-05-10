@@ -71,9 +71,6 @@ RUN yum install -y -q pcre \
     mkdir -p /usr/local/src/apache
 
 WORKDIR /usr/local/src/apache
-COPY httpd-${HTTPD_VERSION}.tar.gz ./
-COPY apr-util-${APR_UTIL_VERSION}.tar.gz ./
-COPY apr-${APR_VERSION}.tar.gz ./
 RUN wget -nv -q http://ftp.tsukuba.wide.ad.jp/software/apache//httpd/httpd-${HTTPD_VERSION}.tar.gz && \
     wget -nv -q http://ftp.riken.jp/net/apache//apr/apr-${APR_VERSION}.tar.gz && \
     wget -nv -q http://ftp.riken.jp/net/apache//apr/apr-util-${APR_UTIL_VERSION}.tar.gz && \
