@@ -8,6 +8,10 @@ ENV HTTPD_VERSION=2.4.33 \
     APR_UTIL_VERSION=1.6.1 \
     PHP_VERSION=7.2.3
 
+# Apacheのグループとユーザ作成
+RUN groupadd -g 500 apache
+RUN useradd -u 500 -g apache apache
+
 # EPELを導入しておく + yum update + editor install
 RUN echo "include_only=.jp" >> /etc/yum/pluginconf.d/fastestmirror.conf && \
     yum -q clean all && \
@@ -113,9 +117,9 @@ RUN ./configure \
     make --silent && \
     make install --silent && \
     echo "application/x-httpd-php php html" >> /usr/local/httpd/conf/mime.types && \
-    chown -R apache:dev /usr/local/apr-${APR_VERSION} && \
-    chown -R apache:dev /usr/local/apr-util-${APR_UTIL_VERSION} && \
-    chown -R apache:dev /usr/local/httpd && \
+    chown -R apache:apache /usr/local/apr-${APR_VERSION} && \
+    chown -R apache:apache /usr/local/apr-util-${APR_UTIL_VERSION} && \
+    chown -R apache:apache /usr/local/httpd && \
     rm -fr /usr/local/src/apache/httpd-${HTTPD_VERSION}
 
 # PHP
