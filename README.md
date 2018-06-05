@@ -1,4 +1,6 @@
-# cs_docker_apache_php
+cs_docker_apache_php
+====================
 
-# このイメージは作成中です。
-## apache2.4.33-php7.2.8 のようなタグを付けてバージョン固定できるようにする予定です
+## Supported tags and respective `Dockerfile` links
+- `latest`, `apache2.4.33-php7.2.3` [Dockerfile]("")
+
