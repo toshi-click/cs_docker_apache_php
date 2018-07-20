@@ -3,10 +3,10 @@ FROM centos:7
 # 作成者情報
 MAINTAINER toshi <toshi@toshi.click>
 
-ENV HTTPD_VERSION=2.4.33 \
+ENV HTTPD_VERSION=2.4.34 \
     APR_VERSION=1.6.3 \
     APR_UTIL_VERSION=1.6.1 \
-    PHP_VERSION=7.2.3
+    PHP_VERSION=7.2.8
 
 # Apacheのグループとユーザ作成
 RUN groupadd -g 500 apache
@@ -157,7 +157,7 @@ RUN ./configure \
     pecl install --nocompress mailparse && \
     pecl install redis && \
     rm -fr /usr/local/src/php-${PHP_VERSION}
-    
+
 # apacheのコマンドすぐ使いたいかもしれないからdir移動
 WORKDIR /usr/local/httpd/bin
 
