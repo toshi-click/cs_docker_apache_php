@@ -177,6 +177,8 @@ ADD run /usr/local/bin/run
 
 RUN chmod +x /usr/local/bin/run
 
+RUN mkdir -p /var/log/httpd
+
 EXPOSE 80 443
 
 ENTRYPOINT ["/usr/local/bin/run"]
