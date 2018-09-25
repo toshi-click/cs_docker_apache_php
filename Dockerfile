@@ -3,10 +3,10 @@ FROM centos:7
 # 作成者情報
 MAINTAINER toshi <toshi@toshi.click>
 
-ENV HTTPD_VERSION=2.4.34 \
+ENV HTTPD_VERSION=2.4.35 \
     APR_VERSION=1.6.3 \
     APR_UTIL_VERSION=1.6.1 \
-    PHP_VERSION=7.2.8
+    PHP_VERSION=7.2.10
 
 # Apacheのグループとユーザ作成
 RUN groupadd -g 500 apache
