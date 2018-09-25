@@ -4,7 +4,7 @@ FROM centos:7
 MAINTAINER toshi <toshi@toshi.click>
 
 ENV HTTPD_VERSION=2.4.35 \
-    APR_VERSION=1.6.3 \
+    APR_VERSION=1.6.5 \
     APR_UTIL_VERSION=1.6.1 \
     PHP_VERSION=7.2.10
 
