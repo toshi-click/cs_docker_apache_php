@@ -2,7 +2,6 @@ cs_docker_apache_php
 ====================
 
 ## Supported tags and respective `Dockerfile` links
-
 - `latest`
   [(Dockerfile)][100]
 - `apache2.4.37-php7.2.12`
