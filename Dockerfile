@@ -122,6 +122,23 @@ RUN ./configure \
     chown -R apache:apache /usr/local/httpd && \
     rm -fr /usr/local/src/apache/httpd-${HTTPD_VERSION}
 
+# web-driverで必要なのでzip拡張入れる
+RUN wget https://cmake.org/files/v3.10/cmake-3.10.2.tar.gz \
+    && tar zxvf cmake-3.10.2.tar.gz \
+    && cd cmake-3.10.2 \
+    && ./bootstrap \
+    && make --silent \
+    && make --silent install \
+    && wget https://libzip.org/download/libzip-1.4.0.tar.gz \
+    && tar zxvf libzip-1.4.0.tar.gz \
+    && cd libzip-1.4.0 \
+    && mkdir build \
+    && cd build \
+    && /usr/local/bin/cmake .. \
+    && make --silent \
+    && make --silent test \
+    && make --silent install
+
 # PHP
 WORKDIR  /usr/local/src/
 RUN wget -nv -q -O php-${PHP_VERSION}.tar.gz http://jp2.php.net/get/php-${PHP_VERSION}.tar.gz/from/this/mirror && \
@@ -157,11 +174,11 @@ RUN ./configure \
     make install --silent && \
     pecl install --nocompress mailparse && \
     pecl install redis && \
+    pecl install zip && \
     rm -fr /usr/local/src/php-${PHP_VERSION}
 
 # apacheのコマンドすぐ使いたいかもしれないからdir移動
 WORKDIR /usr/local/httpd/bin
-
 
 ##############################################################################
 # conf類は変わる可能性が高いから最後に書くこと！！
