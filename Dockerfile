@@ -139,6 +139,7 @@ RUN ./configure \
     --enable-mbstring \
     --enable-mbregex \
     --enable-cli \
+    --enable-zip \
     --with-zlib \
     --with-gd \
     --with-jpeg-dir=/usr/local/src/php-${PHP_VERSION}/ext/gd/libgd \
