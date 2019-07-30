@@ -1,8 +1,5 @@
 FROM centos:7
 
-# 作成者情報
-MAINTAINER toshi <toshi@toshi.click>
-
 ENV HTTPD_VERSION=2.4.39 \
     APR_VERSION=1.6.5 \
     APR_UTIL_VERSION=1.6.1 \
@@ -139,6 +136,14 @@ RUN wget https://cmake.org/files/v3.10/cmake-3.10.2.tar.gz \
     && make --silent test \
     && make --silent install
 
+# yumのzipは古すぎるのでソースからインストール
+WORKDIR  /usr/local/src/
+RUN wget https://nih.at/libzip/libzip-1.5.2.tar.gz \
+    && tar -zxvf libzip-1.5.2.tar.gz \
+    && cd libzip-1.5.2 \
+    && cmake . \
+    && make install
+
 # PHP
 WORKDIR  /usr/local/src/
 RUN wget -nv -q -O php-${PHP_VERSION}.tar.gz http://jp2.php.net/get/php-${PHP_VERSION}.tar.gz/from/this/mirror && \
@@ -165,7 +170,6 @@ RUN ./configure \
     --with-openssl \
     --with-freetype-dir=/usr/local/freetype-2 \
     --with-xpm-dir \
-    --enable-gd-native-ttf \
     --enable-gd-jis-conv \
     --with-curl \
     --with-libdir=lib64 \
