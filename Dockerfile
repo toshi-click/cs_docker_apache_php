@@ -6,7 +6,7 @@ MAINTAINER toshi <toshi@toshi.click>
 ENV HTTPD_VERSION=2.4.39 \
     APR_VERSION=1.6.5 \
     APR_UTIL_VERSION=1.6.1 \
-    PHP_VERSION=7.2.16
+    PHP_VERSION=7.3.7
 
 # Apacheのグループとユーザ作成
 RUN groupadd -g 500 apache
