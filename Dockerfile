@@ -167,6 +167,7 @@ RUN ./configure \
     --with-zlib \
     --enable-gd \
     --with-jpeg \
+    --with-pear \
     --with-openssl \
     --with-xpm \
     --enable-gd-jis-conv \
