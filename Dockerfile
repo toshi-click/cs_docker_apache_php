@@ -1,9 +1,9 @@
 FROM centos:7
 
-ENV HTTPD_VERSION=2.4.39 \
+ENV HTTPD_VERSION=2.4.43 \
     APR_VERSION=1.6.5 \
     APR_UTIL_VERSION=1.6.1 \
-    PHP_VERSION=7.3.14
+    PHP_VERSION=7.4.4
 
 # Apacheのグループとユーザ作成
 RUN groupadd -g 500 apache
@@ -145,6 +145,11 @@ RUN wget https://nih.at/libzip/libzip-1.5.2.tar.gz \
     && make install
 
 # PHP
+RUN yum install -y -q sqlite-devel && \
+    yum install -y http://rpms.remirepo.net/enterprise/7/remi/x86_64//oniguruma5-6.9.4-1.el7.remi.x86_64.rpm && \
+    yum install -y http://rpms.remirepo.net/enterprise/7/remi/x86_64//oniguruma5-devel-6.9.4-1.el7.remi.x86_64.rpm && \
+    yum -q clean all
+
 WORKDIR  /usr/local/src/
 RUN wget -nv -q -O php-${PHP_VERSION}.tar.gz http://jp2.php.net/get/php-${PHP_VERSION}.tar.gz/from/this/mirror && \
     tar xzf php-${PHP_VERSION}.tar.gz && \
@@ -155,26 +160,20 @@ WORKDIR /usr/local/src/php-${PHP_VERSION}
 RUN ./configure \
     --silent \
     --with-apxs2=/usr/local/httpd/bin/apxs \
-    --with-pgsql=/usr/local/pgsql \
+    --with-pgsql=/usr/local/src/php-${PHP_VERSION}/ext/pgsql \
     --with-mysqli=mysqlnd \
     --enable-sockets \
     --enable-mbstring \
-    --enable-mbregex \
-    --enable-cli \
-    --enable-zip \
     --with-zlib \
-    --with-gd \
-    --with-jpeg-dir=/usr/local/src/php-${PHP_VERSION}/ext/gd/libgd \
-    --with-png-dir=/usr/local/src/php-${PHP_VERSION}/ext/gd/libgd \
-    --with-libxml-dir=/usr/local/libxml2 \
+    --enable-gd \
+    --with-jpeg \
     --with-openssl \
-    --with-freetype-dir=/usr/local/freetype-2 \
-    --with-xpm-dir \
+    --with-xpm \
     --enable-gd-jis-conv \
     --with-curl \
     --with-libdir=lib64 \
-    --enable-exif && \
-    make --silent && \
+    --enable-exif
+RUN make --silent && \
     make install --silent && \
     pecl install --nocompress mailparse && \
     pecl install redis && \
