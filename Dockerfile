@@ -1,9 +1,11 @@
 FROM centos:7
 
-ENV HTTPD_VERSION=2.4.43 \
-    APR_VERSION=1.6.5 \
+ENV HTTPD_VERSION=2.4.46 \
+    APR_VERSION=1.7.0 \
     APR_UTIL_VERSION=1.6.1 \
-    PHP_VERSION=7.4.4
+    PHP_VERSION=8.0.5 \
+    LIBZIP_VERSION=1.7.3 \
+    PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig
 
 # Apacheのグループとユーザ作成
 RUN groupadd -g 500 apache
@@ -37,6 +39,7 @@ RUN localedef -f UTF-8 -i ja_JP ja_JP.UTF-8 && \
 RUN yum install -y -q pcre \
     pcre-devel \
     make \
+    cmake3 \
     openssl \
     openssl-devel \
     wget \
@@ -119,39 +122,21 @@ RUN ./configure \
     chown -R apache:apache /usr/local/httpd && \
     rm -fr /usr/local/src/apache/httpd-${HTTPD_VERSION}
 
-# web-driverで必要なのでzip拡張入れる
-RUN wget https://cmake.org/files/v3.10/cmake-3.10.2.tar.gz \
-    && tar zxvf cmake-3.10.2.tar.gz \
-    && cd cmake-3.10.2 \
-    && ./bootstrap \
-    && make --silent \
-    && make --silent install \
-    && wget https://libzip.org/download/libzip-1.4.0.tar.gz \
-    && tar zxvf libzip-1.4.0.tar.gz \
-    && cd libzip-1.4.0 \
-    && mkdir build \
-    && cd build \
-    && /usr/local/bin/cmake .. \
-    && make --silent \
-    && make --silent test \
-    && make --silent install
-
-# yumのzipは古すぎるのでソースからインストール
 WORKDIR  /usr/local/src/
-RUN wget https://nih.at/libzip/libzip-1.5.2.tar.gz \
-    && tar -zxvf libzip-1.5.2.tar.gz \
-    && cd libzip-1.5.2 \
-    && cmake . \
+RUN wget https://libzip.org/download/libzip-${LIBZIP_VERSION}.tar.gz \
+    && tar xzf libzip-${LIBZIP_VERSION}.tar.gz \
+    && rm -fr libzip-${LIBZIP_VERSION}.tar.gz \
+    && cd libzip-${LIBZIP_VERSION} \
+    && cmake3 . \
     && make install
 
 # PHP
-RUN yum install -y -q sqlite-devel && \
-    yum install -y http://rpms.remirepo.net/enterprise/7/remi/x86_64//oniguruma5-6.9.4-1.el7.remi.x86_64.rpm && \
-    yum install -y http://rpms.remirepo.net/enterprise/7/remi/x86_64//oniguruma5-devel-6.9.4-1.el7.remi.x86_64.rpm && \
+RUN yum install -y -q sqlite-devel \
+    oniguruma-devel && \
     yum -q clean all
 
 WORKDIR  /usr/local/src/
-RUN wget -nv -q -O php-${PHP_VERSION}.tar.gz http://jp2.php.net/get/php-${PHP_VERSION}.tar.gz/from/this/mirror && \
+RUN curl -SL https://www.php.net/distributions/php-${PHP_VERSION}.tar.gz -o php-${PHP_VERSION}.tar.gz && \
     tar xzf php-${PHP_VERSION}.tar.gz && \
     rm -fr php-${PHP_VERSION}.tar.gz
 
@@ -159,21 +144,29 @@ RUN wget -nv -q -O php-${PHP_VERSION}.tar.gz http://jp2.php.net/get/php-${PHP_VE
 WORKDIR /usr/local/src/php-${PHP_VERSION}
 RUN ./configure \
     --silent \
+    --enable-bcmath \
+    --enable-cli \
+    --enable-exif \
+    --enable-gd \
+    --enable-gd-jis-conv \
+    --enable-mbregex \
+    --enable-mbstring \
+    --enable-soap \
+    --enable-sockets \
     --with-apxs2=/usr/local/httpd/bin/apxs \
     --with-pgsql=/usr/local/src/php-${PHP_VERSION}/ext/pgsql \
     --with-mysqli=mysqlnd \
-    --enable-sockets \
-    --enable-mbstring \
-    --with-zlib \
-    --enable-gd \
-    --with-jpeg \
-    --with-pear \
-    --with-openssl \
-    --with-xpm \
-    --enable-gd-jis-conv \
+    --with-pdo-mysql=mysqlnd \
     --with-curl \
+    --with-freetype \
+    --with-jpeg \
     --with-libdir=lib64 \
-    --enable-exif
+    --with-libxml \
+    --with-openssl \
+    --with-pear \
+    --with-xpm \
+    --with-zip \
+    --with-zlib
 RUN make --silent && \
     make install --silent && \
     pecl install --nocompress mailparse && \
@@ -184,8 +177,6 @@ RUN make --silent && \
 # apacheのコマンドすぐ使いたいかもしれないからdir移動
 WORKDIR /usr/local/httpd/bin
 
-# 重いので先に入れておく
-RUN pecl install grpc
 ##############################################################################
 # conf類は変わる可能性が高いから最後に書くこと！！
 ##############################################################################
