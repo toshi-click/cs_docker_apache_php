@@ -1,9 +1,9 @@
 FROM centos:7
 
-ENV HTTPD_VERSION=2.4.46 \
+ENV HTTPD_VERSION=2.4.48 \
     APR_VERSION=1.7.0 \
     APR_UTIL_VERSION=1.6.1 \
-    PHP_VERSION=8.0.5 \
+    PHP_VERSION=8.0.7 \
     LIBZIP_VERSION=1.7.3 \
     PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig
 
